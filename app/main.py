@@ -9,32 +9,30 @@ class Person:
 
 def create_person_list(people_list: list) -> list:
     """
-    Creates and links Person instances based on a list of dictionaries.
-    Each dictionary describes a person and may contain references to a
-    wife or husband by name. All Person objects are created first, and
-    then marital relationships are established using the shared registry
-    Person.people.
+    Creates Person instances from a list of dictionaries and then links
+    them using spouse references. All Person objects are created first
+    using a list comprehension, which automatically populates the
+    Person.people registry. After that, spouse relationships ("wife" or
+    "husband") are established by looking up corresponding Person
+    instances in the shared registry.
 
     :param people_list: list of dictionaries describing people. Each dict
-     must contain "name" and "age", and may include "wife" or "husband"
-     mapped to another persons name.
-    :return: list of fully initialized Person instances with correctly
-     assigned spouse references where applicable
+     must contain "name" and "age", and may optionally contain "wife"
+     or "husband" mapped to another persons name.
+    :return: list of Person instances with spouse attributes assigned
+     where such relationships are defined
     """
-    person_dict = {
-        person.get("name"): Person(person.get("name"), person.get("age"))
-        for person in people_list
-    }
+    list_with_people = [
+        Person(person.get("name"), person.get("age")) for person in people_list
+    ]
 
     for person in people_list:
+        current_person = Person.people.get(person.get("name"))
+
         if person.get("wife"):
-            person_dict[person.get("name")].wife = Person.people.get(
-                person.get("wife")
-            )
+            current_person.wife = Person.people.get(person.get("wife"))
 
         if person.get("husband"):
-            person_dict[person.get("name")].husband = Person.people.get(
-                person.get("husband")
-            )
+            current_person.husband = Person.people.get(person.get("husband"))
 
-    return list(person_dict.values())
+    return list_with_people
